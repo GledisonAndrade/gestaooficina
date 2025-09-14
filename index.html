@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Oficina</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-car"></i>
+                    <span>Registro de Oficina</span>
+                </div>
+                <div class="header-controls">
+                    <button id="theme-toggle" class="btn btn-theme">
+                        <i class="fas fa-moon"></i> Tema
+                    </button>
+                    <button id="about-btn" class="btn btn-primary">
+                        <i class="fas fa-info-circle"></i> Sobre
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav>
+            <ul class="nav-list">
+                <li class="nav-item active" data-target="dashboard">Dashboard</li>
+                <li class="nav-item" data-target="os">Ordens de Serviço</li>
+                <li class="nav-item" data-target="garantia">Garantias</li>
+                <li class="nav-item" data-target="relatorios">Relatórios</li>
+            </ul>
+        </nav>
+
+        <main>
+            <!-- Dashboard -->
+            <section id="dashboard" class="content-section active">
+                <div class="section-header">
+                    <h2>Dashboard</h2>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-tools"></i>
+                        <h3 id="count-os-abertas">0</h3>
+                        <p>OS Abertas</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-check-circle"></i>
+                        <h3 id="count-os-finalizadas">0</h3>
+                        <p>OS Finalizadas</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3 id="count-garantias-abertas">0</h3>
+                        <p>Garantias Abertas</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-clipboard-check"></i>
+                        <h3 id="count-garantias-finalizadas">0</h3>
+                        <p>Garantias Finalizadas</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ordens de Serviço -->
+            <section id="os" class="content-section">
+                <div class="section-header">
+                    <h2>Ordens de Serviço</h2>
+                    <button id="nova-os" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nova OS
+                    </button>
+                </div>
+                
+                <div class="items-list" id="os-list">
+                    <!-- OS items will be added here dynamically -->
+                </div>
+            </section>
+
+            <!-- Garantias -->
+            <section id="garantia" class="content-section">
+                <div class="section-header">
+                    <h2>Gestão de Garantias</h2>
+                    <button id="nova-garantia" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nova Garantia
+                    </button>
+                </div>
+                
+                <div class="items-list" id="garantia-list">
+                    <!-- Garantia items will be added here dynamically -->
+                </div>
+            </section>
+
+            <!-- Relatórios -->
+            <section id="relatorios" class="content-section">
+                <div class="section-header">
+                    <h2>Relatórios e Gráficos</h2>
+                </div>
+                
+                <div class="chart-filters">
+                    <button class="btn btn-primary filter-btn active" data-period="week">
+                        <i class="fas fa-chart-line"></i> Semanal
+                    </button>
+                    <button class="btn btn-primary filter-btn" data-period="month">
+                        <i class="fas fa-chart-bar"></i> Mensal
+                    </button>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="services-chart"></canvas>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal para OS -->
+    <div id="os-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-os-title">Nova Ordem de Serviço</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="os-form">
+                    <input type="hidden" id="os-id">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="cliente">Cliente</label>
+                            <input type="text" id="cliente" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="veiculo">Veículo</label>
+                            <input type="text" id="veiculo" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="placa">Placa</label>
+                            <input type="text" id="placa" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mecanico">Mecânico</label>
+                            <input type="text" id="mecanico" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="diagnostico">Diagnóstico</label>
+                            <textarea id="diagnostico" class="form-control"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="hora-inicio">Hora Início</label>
+                            <input type="datetime-local" id="hora-inicio" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="hora-fim">Hora Término</label>
+                            <input type="datetime-local" id="hora-fim" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="solucao">Solução</label>
+                            <textarea id="solucao" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Salvar
+                        </button>
+                        <button type="button" class="btn btn-danger" id="cancel-os">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Garantia -->
+    <div id="garantia-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-garantia-title">Nova Garantia</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="garantia-form">
+                    <input type="hidden" id="garantia-id">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="garantia-cliente">Cliente</label>
+                            <input type="text" id="garantia-cliente" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="garantia-veiculo">Veículo</label>
+                            <input type="text" id="garantia-veiculo" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="garantia-placa">Placa</label>
+                            <input type="text" id="garantia-placa" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="garantia-mecanico">Mecânico</label>
+                            <input type="text" id="garantia-mecanico" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="garantia-diagnostico">Diagnóstico</label>
+                            <textarea id="garantia-diagnostico" class="form-control"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="garantia-hora-inicio">Hora Início</label>
+                            <input type="datetime-local" id="garantia-hora-inicio" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="garantia-hora-fim">Hora Término</label>
+                            <input type="datetime-local" id="garantia-hora-fim" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="garantia-solucao">Solução</label>
+                            <textarea id="garantia-solucao" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Fotos do Problema -->
+                    <div class="form-group">
+                        <label>Fotos do Problema</label>
+                        <div id="fotos-problema" class="photos-container"></div>
+                        <button type="button" id="add-foto-problema" class="btn btn-primary">
+                            <i class="fas fa-camera"></i> Adicionar Foto
+                        </button>
+                    </div>
+                    
+                    <!-- Fotos da Solução -->
+                    <div class="form-group">
+                        <label>Fotos da Solução</label>
+                        <div id="fotos-solucao" class="photos-container"></div>
+                        <button type="button" id="add-foto-solucao" class="btn btn-primary">
+                            <i class="fas fa-camera"></i> Adicionar Foto
+                        </button>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Salvar
+                        </button>
+                        <button type="button" class="btn btn-danger" id="cancel-garantia">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Câmera -->
+    <div id="camera-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Tirar Foto</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="camera-container">
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="canvas" style="display:none;"></canvas>
+                </div>
+                <div class="camera-actions">
+                    <button id="capture-btn" class="btn btn-primary">
+                        <i class="fas fa-camera"></i> Capturar
+                    </button>
+                    <button id="retake-btn" class="btn btn-warning" style="display:none;">
+                        <i class="fas fa-redo"></i> Tirar Novamente
+                    </button>
+                    <button id="use-photo-btn" class="btn btn-success" style="display:none;">
+                        <i class="fas fa-check"></i> Usar Foto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Sobre -->
+    <div id="about-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Sobre o Sistema</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Este sistema foi desenvolvido para gerenciar ordens de serviço e garantias em oficinas mecânicas.</p>
+                <p><strong>Objetivo:</strong> Facilitar o controle de serviços realizados, garantias e geração de relatórios para o setor de pós-vendas.</p>
+                <p><strong>Desenvolvedor:</strong> Gledison Arruda Andrade</p>
+                <p><strong>Funcionalidades:</strong></p>
+                <ul>
+                    <li>Abertura e fechamento de ordens de serviço</li>
+                    <li>Gestão de garantias com registro fotográfico</li>
+                    <li>Relatórios e gráficos de desempenho</li>
+                    <li>Exportação de dados para PDF</li>
+                    <li>Interface responsiva para desktop e mobile</li>
+                    <li>Modo claro e escuro</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Gestão Andrade &copy; Companhia</p>
+        </div>
+    </footer>
+
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>
